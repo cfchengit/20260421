@@ -1,5 +1,6 @@
 let capture;
 let pg; // 宣告變數，用來存放 createGraphics 產生的圖層
+let bubbles = []; // 宣告陣列，用來存放泡泡資料
 
 function setup() {
   // 第一步驟：產生一個全螢幕的畫布
@@ -19,10 +20,37 @@ function draw() {
   // 當攝影機已準備好且取得寬高時，利用 createGraphics 產生與視訊畫面相同寬高的圖層
   if (capture.width > 0 && !pg) {
     pg = createGraphics(capture.width, capture.height);
-    // 在 pg 上面畫一個半透明的紅色圓形作為範例，以便確認它確實覆蓋在視訊上方
-    pg.fill(255, 0, 0, 150);
+  }
+
+  // 如果圖層已建立，進行泡泡效果的繪製
+  if (pg) {
+    pg.clear(); // 清除上一幀的畫面，保持圖層透明背景
+    
+    // 隨機產生新的泡泡
+    if (random(1) < 0.15) { // 控制泡泡產生的機率 (大約 15%)
+      bubbles.push({
+        x: random(pg.width),
+        y: pg.height + 30, // 從畫布底部外面開始
+        r: random(10, 30), // 隨機半徑大小
+        speed: random(2, 5) // 隨機上升速度
+      });
+    }
+    
+    pg.fill(255, 255, 255, 150); // 半透明白色的泡泡
     pg.noStroke();
-    pg.circle(pg.width / 2, pg.height / 2, min(pg.width, pg.height) * 0.5);
+    
+    // 繪製並更新所有泡泡
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      let b = bubbles[i];
+      b.y -= b.speed; // 向上移動
+      b.x += sin(frameCount * 0.05 + b.y * 0.01) * 2; // 讓泡泡左右微微搖擺
+      pg.circle(b.x, b.y, b.r);
+      
+      // 如果泡泡超出畫面頂部，將其從陣列中移除以節省效能
+      if (b.y < -50) {
+        bubbles.splice(i, 1);
+      }
+    }
   }
 
   // 將影像的繪製對齊模式設定為「中心點」，方便後續置中
