@@ -73,8 +73,43 @@ function draw() {
   translate(width / 2, height / 2);
   // 水平翻轉 x 軸，解決左右顛倒的問題（產生鏡像效果）
   scale(-1, 1);
-  // 因為座標中心已經移動到了 (width/2, height/2)，所以在此直接畫在 (0, 0) 的位置即可
-  image(capture, 0, 0, imgWidth, imgHeight);
+  
+  // 因為座標中心已經移動到了 (width/2, height/2)，原點 (0,0) 即為畫布中心
+  // 將原本的影像繪製改成 20x20 黑白馬賽克效果
+  if (capture.width > 0) {
+    capture.loadPixels(); // 載入影像像素資料至 capture.pixels 陣列中
+    if (capture.pixels.length > 0) {
+      let step = 20; // 設定每個單位寬高為 20x20
+      
+      // 計算每個馬賽克單位在畫面縮放 60% 後，實際應該顯示的寬高
+      let unitW = imgWidth / (capture.width / step);
+      let unitH = imgHeight / (capture.height / step);
+      
+      // 計算左上角起始點 (因為目前原點已平移到中心，所以退回一半的寬高)
+      let startX = -imgWidth / 2;
+      let startY = -imgHeight / 2;
+      
+      noStroke(); // 馬賽克方塊不需要邊框
+      for (let y = 0; y < capture.height; y += step) {
+        for (let x = 0; x < capture.width; x += step) {
+          // 計算當前 x,y 在一維陣列(pixels)中的索引位置
+          let index = (y * capture.width + x) * 4;
+          let r = capture.pixels[index];
+          let g = capture.pixels[index + 1];
+          let b = capture.pixels[index + 2];
+          
+          // 利用 (R+G+B)/3 取得灰階數值，變成黑白顏色
+          let gray = (r + g + b) / 3;
+          fill(gray);
+          
+          // 依照單位比例計算，並畫出該位置的正方形
+          let drawX = startX + (x / step) * unitW;
+          let drawY = startY + (y / step) * unitH;
+          rect(drawX, drawY, unitW, unitH);
+        }
+      }
+    }
+  }
   
   // 將 pg 圖層顯示在視訊畫面的上方
   if (pg) {
