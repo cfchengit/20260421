@@ -1,4 +1,5 @@
 let capture;
+let pg; // 宣告變數，用來存放 createGraphics 產生的圖層
 
 function setup() {
   // 第一步驟：產生一個全螢幕的畫布
@@ -15,6 +16,15 @@ function draw() {
   // 設定畫布的背景顏色為 #e7c6ff
   background('#e7c6ff');
   
+  // 當攝影機已準備好且取得寬高時，利用 createGraphics 產生與視訊畫面相同寬高的圖層
+  if (capture.width > 0 && !pg) {
+    pg = createGraphics(capture.width, capture.height);
+    // 在 pg 上面畫一個半透明的紅色圓形作為範例，以便確認它確實覆蓋在視訊上方
+    pg.fill(255, 0, 0, 150);
+    pg.noStroke();
+    pg.circle(pg.width / 2, pg.height / 2, min(pg.width, pg.height) * 0.5);
+  }
+
   // 將影像的繪製對齊模式設定為「中心點」，方便後續置中
   imageMode(CENTER);
   
@@ -30,6 +40,12 @@ function draw() {
   scale(-1, 1);
   // 因為座標中心已經移動到了 (width/2, height/2)，所以在此直接畫在 (0, 0) 的位置即可
   image(capture, 0, 0, imgWidth, imgHeight);
+  
+  // 將 pg 圖層顯示在視訊畫面的上方
+  if (pg) {
+    image(pg, 0, 0, imgWidth, imgHeight);
+  }
+  
   pop();
 }
 
