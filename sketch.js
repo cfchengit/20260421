@@ -11,6 +11,13 @@ function setup() {
   
   // 隱藏 p5.js 預設產生的 HTML <video> 元素，我們只需要將它畫在 Canvas 畫布內
   capture.hide(); 
+  
+  // 在視訊圖片外面（左上角）產生一個按鈕
+  let saveBtn = createButton('儲存圖片');
+  saveBtn.position(20, 20); // 固定在畫面左上角
+  saveBtn.style('font-size', '16px');
+  saveBtn.style('padding', '10px');
+  saveBtn.mousePressed(takeSnapshot); // 當按下按鈕時，執行 takeSnapshot 函式
 }
 
 function draw() {
@@ -80,4 +87,18 @@ function draw() {
 // (額外優化) 當使用者縮放瀏覽器視窗時，畫布也能自動跟著改變大小並維持全螢幕
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+}
+
+// 負責擷取指定範圍並儲存圖片的函式
+function takeSnapshot() {
+  // 計算與 draw() 相同的視訊畫面寬高及起始點座標
+  let imgWidth = width * 0.6;
+  let imgHeight = height * 0.6;
+  let startX = (width - imgWidth) / 2;
+  let startY = (height - imgHeight) / 2;
+  
+  // 使用 get(x, y, w, h) 只擷取視訊畫面範圍的像素
+  let snapshot = get(startX, startY, imgWidth, imgHeight);
+  // 儲存為 jpg 圖檔
+  snapshot.save('my_snapshot', 'jpg');
 }
