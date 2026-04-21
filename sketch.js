@@ -22,8 +22,15 @@ function draw() {
   let imgWidth = width * 0.6;
   let imgHeight = height * 0.6;
   
-  // 將擷取的攝影機影像繪製在畫布的中心 (width/2, height/2)
-  image(capture, width / 2, height / 2, imgWidth, imgHeight);
+  // 使用 push() 和 pop() 來確保翻轉效果只套用於目前的影像繪製
+  push();
+  // 將座標系統平移至畫布中心
+  translate(width / 2, height / 2);
+  // 水平翻轉 x 軸，解決左右顛倒的問題（產生鏡像效果）
+  scale(-1, 1);
+  // 因為座標中心已經移動到了 (width/2, height/2)，所以在此直接畫在 (0, 0) 的位置即可
+  image(capture, 0, 0, imgWidth, imgHeight);
+  pop();
 }
 
 // (額外優化) 當使用者縮放瀏覽器視窗時，畫布也能自動跟著改變大小並維持全螢幕
